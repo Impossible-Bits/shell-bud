@@ -5,7 +5,7 @@ update:
     go mod tidy -v
 
 build:
-    go build -o ./bin/shm ./cmd/main.go
+    go build -o ./bin/sb ./cmd/main.go
 
 install-locally: build
-    cp ./bin/shm /usr/local/bin/shm
+    cp ./bin/sb /usr/local/bin/sb

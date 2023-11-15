@@ -10,9 +10,9 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "self-hosted-manager",
-	Short: "Manage self-hosted services and machines",
-	Long:  `A command-line utility to manage self-hosted services, including machine status, SSH setup, Ansible deployments, and more.`,
+	Use:   "Shell Buddy",
+	Short: "Manage your services, commands and machines with ease",
+	Long:  `Shell Buddy is a tool to manage your commands, services and machines. It is designed to be simple and easy to use.`,
 }
 
 // Execute initializes the root command.
@@ -31,7 +31,7 @@ func initConfig() {
 		home = "."
 	}
 
-	configPath := filepath.Join(home, ".config/shm")
+	configPath := filepath.Join(home, ".config/sb")
 	viper.AddConfigPath(configPath)
 	viper.AddConfigPath(".")
 	viper.SetConfigName("config")

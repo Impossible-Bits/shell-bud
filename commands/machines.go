@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"self-hosted-manager/interfaces"
-	"self-hosted-manager/style"
+	"shell-buddy/interfaces"
+	"shell-buddy/utils"
 )
 
 var machines = make([]interfaces.Machine, 0)
@@ -40,15 +40,20 @@ var listMachineCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		machines := viper.GetStringMap("machines")
 		ms := make([]interfaces.Machine, 0, len(machines))
+		fmt.Printf("Machines:\n")
 		for name, ip := range machines {
-			ms = append(ms, interfaces.Machine{Name: name, IP: ip.(string)})
-		}
-		err := style.DisplayMachineTable(ms)
-		if err != nil {
-			fmt.Println("Error displaying machine table:", err)
-			return
-		}
+			m := interfaces.Machine{Name: name, IP: ip.(string), Status: utils.IsMachineOnline(ip.(string))}
 
+			var status string
+			if m.Status {
+				status = "Online"
+			} else {
+				status = "Offline"
+			}
+
+			fmt.Printf("\t%s: %s - %s\n", m.Name, m.IP, status)
+			ms = append(ms, m)
+		}
 	},
 }
 

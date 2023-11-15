@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"self-hosted-manager/interfaces"
+	"shell-buddy/interfaces"
 )
 
 var COMMAND_KEY = "commands"

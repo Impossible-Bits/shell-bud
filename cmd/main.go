@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"self-hosted-manager/commands"
+	"shell-buddy/commands"
 )
 
 func main() {

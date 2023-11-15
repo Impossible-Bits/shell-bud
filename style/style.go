@@ -5,7 +5,7 @@ import (
 	"github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
 	"github.com/spf13/viper"
-	"self-hosted-manager/interfaces"
+	"shell-buddy/interfaces"
 )
 
 func GetStyle(styleName string) *color.Color {

@@ -1,4 +1,4 @@
-module self-hosted-manager
+module shell-buddy
 
 go 1.21.3
 
