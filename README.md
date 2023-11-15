@@ -65,4 +65,3 @@ Background Command Execution (WIP)
 Template Commands (WIP)
 
     Feature description and command usage instructions
-
