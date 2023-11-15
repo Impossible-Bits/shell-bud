@@ -1,0 +1,12 @@
+styles:
+  success:
+    color: green
+  error:
+    color: red
+  warning:
+    color: yellow
+  info:
+    color: blue
+  table:
+    headerColor: cyan
+    align: left
