@@ -5,6 +5,7 @@ go 1.21.3
 require (
 	github.com/fatih/color v1.14.1
 	github.com/gizak/termui/v3 v3.1.0
+	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 )

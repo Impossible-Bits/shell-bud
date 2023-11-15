@@ -2,6 +2,8 @@ package commands
 
 import (
 	"github.com/spf13/cobra"
+	"shell-buddy/pkg/commands"
+	"shell-buddy/pkg/machines"
 	"shell-buddy/pkg/utils"
 )
 
@@ -12,8 +14,10 @@ var RootCmd = &cobra.Command{
 }
 
 func Execute() error {
-	return rootCmd.Execute()
+	return RootCmd.Execute()
 }
 func init() {
 	cobra.OnInitialize(utils.InitializeConfig)
+	RootCmd.AddCommand(commands.UserCommandCmd)
+	RootCmd.AddCommand(machines.MachineCmd)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/gizak/termui/v3"
 	"github.com/gizak/termui/v3/widgets"
 	"github.com/spf13/viper"
-	"shell-buddy/interfaces"
+	"shell-buddy/pkg/machines"
 )
 
 func GetStyle(styleName string) *color.Color {
@@ -30,7 +30,7 @@ func getColor(colorName string) color.Attribute {
 	}
 }
 
-func DisplayMachineTable(machines []interfaces.Machine) error {
+func DisplayMachineTable(machines []machines.Machine) error {
 	if err := termui.Init(); err != nil {
 		return err
 	}
