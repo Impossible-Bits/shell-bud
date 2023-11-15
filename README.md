@@ -17,3 +17,5 @@ just install-local
 - [x] Ping
 - [ ] Run pinned commands
 - [ ] Keep track of last maintained machines
+
+... and more to come (still thinking about pain points I have)
