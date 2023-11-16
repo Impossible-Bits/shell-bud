@@ -193,20 +193,13 @@ var listMacroCmd = &cobra.Command{
 	Use:   "lm",
 	Short: "List a macro list",
 	Long:  `Execute all commands associated with a given macro.`,
-	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		macroName := args[0]
-
 		macros := getMacrosMap()
-		if _, exists := macros[macroName]; !exists {
-			fmt.Printf("Macro not found: %s\n", macroName)
-			return
+		for _, macro := range macros {
+			fmt.Printf("Macro: %s\n", macro.Name)
+			fmt.Printf("Description: %s\n", macro.Description)
+			fmt.Printf("Commands: %v\n\n", macro.Commands)
 		}
-
-		macro := macros[macroName]
-		fmt.Printf("Macro: %s\n", macro.Name)
-		fmt.Printf("Description: %s\n", macro.Description)
-		fmt.Printf("Commands: %v\n", macro.Commands)
 	},
 }
 
