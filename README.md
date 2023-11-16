@@ -35,6 +35,9 @@ Adding a Command `sb commands add [name] [description] [command]`
 List commands `sb commands list`
 Remove a Command `sb commands remove [name]`
 
+### Example run
+![example img](./example.png)
+
 ## Contributing
 
 Contributions to Shell Bud are welcome! Please read our contributing guidelines for details on how to contribute to this project.

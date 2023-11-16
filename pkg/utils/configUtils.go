@@ -25,7 +25,7 @@ func InitializeConfig() {
 		fmt.Println("No configuration file found. Creating a new one.")
 		createConfigFile(configPath)
 	}
-	fmt.Println("Using config file:", viper.ConfigFileUsed())
+	//fmt.Println("Using config file:", viper.ConfigFileUsed())
 }
 
 // createConfigFile creates a new YAML configuration file.
