@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"os/exec"
 
 	"github.com/mgutz/ansi"
 	"github.com/spf13/cobra"
@@ -63,9 +64,9 @@ var (
 			for _, c := range commandList {
 				pinIcon := ""
 				if c.Pinned {
-					pinIcon = "\uf44d " // Nerd Fonts icon or emoji
+					pinIcon = "\ueba0"
 				}
-				fmt.Printf("%v %s | `%s`- %s \n", pinIcon, ansi.Color(c.Name, "blue+b"), ansi.Color(c.Command, "green+b"), c.Description)
+				fmt.Printf("%s %s | `%s`- %s \n", pinIcon, ansi.Color(c.Name, "blue+b"), ansi.Color(c.Command, "green+b"), c.Description)
 			}
 		},
 	}
@@ -86,6 +87,7 @@ var (
 			}
 		},
 	}
+
 	pinCommandCmd = &cobra.Command{
 		Use:   "pin [name] [defaultMachineName] [alias]",
 		Short: "Pin a command and optionally set an alias",
@@ -105,15 +107,16 @@ var (
 			}
 			commandList := getCommandsMap()
 			if c, exists := commandList[name]; exists {
-				delete(commandList, name)
-				commandList[name] = BashCommand{
+				nc := BashCommand{
 					Name:           c.Name,
-					Description:    c.Description,
 					Command:        c.Command,
+					Description:    c.Description,
 					Pinned:         true,
 					Alias:          alias,
 					DefaultMachine: defaultMachine,
 				}
+				delete(commandList, name)
+				commandList[name] = nc
 				setCommandsMap(commandList)
 				fmt.Printf("Pinned command: %s with alias: %s on machine: %s\n", name, alias, defaultMachine)
 			} else {
@@ -121,23 +124,151 @@ var (
 			}
 		},
 	}
+
+	unpinCommandCmd = &cobra.Command{
+		Use:   "unpin [name]",
+		Short: "Unpin a command and optionally set an alias",
+		Args:  cobra.RangeArgs(0, 3),
+		Run: func(cmd *cobra.Command, args []string) {
+			name := args[0]
+			var alias, defaultMachine string
+
+			commandList := getCommandsMap()
+			if c, exists := commandList[name]; exists {
+				nc := BashCommand{
+					Name:           c.Name,
+					Command:        c.Command,
+					Description:    c.Description,
+					Pinned:         false,
+					Alias:          c.Alias,
+					DefaultMachine: c.DefaultMachine,
+				}
+				delete(commandList, name)
+				commandList[name] = nc
+				setCommandsMap(commandList)
+				fmt.Printf("Unpinned command: %s with alias: %s on machine: %s\n", name, alias, defaultMachine)
+			} else {
+				fmt.Printf("Command not found: %s\n", name)
+			}
+		},
+	}
 )
 
-func executeCommand(name string) {
-	commands := viper.GetStringMap(COMMAND_KEY)
-	if command, exists := commands[name]; exists {
-		cmd := command.(map[string]interface{})
-		defaultMachine := cmd["defaultMachine"].(string)
+var addMacroCmd = &cobra.Command{
+	Use:   "am [macro name] [command names...]",
+	Short: "Add a new macro",
+	Long:  `Create a new macro with a sequence of commands.`,
+	Args:  cobra.MinimumNArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		name := args[0]
+		commandNames := args[1:]
 
-		if defaultMachine != "" {
-			// Logic to execute the command on the default machine
-			fmt.Printf("Executing '%s' on machine: %s\n", cmd["command"].(string), defaultMachine)
-		} else {
-			// Local execution logic
-			fmt.Printf("Executing '%s' locally\n", cmd["command"].(string))
+		macros := getMacrosMap()
+		if _, exists := macros[name]; exists {
+			fmt.Printf("Macro already exists: %s\n", name)
+			return
+		}
+
+		commands := getCommandsMap()
+		for _, name := range commandNames {
+			if _, exists := commands[name]; !exists {
+				fmt.Printf("Command not found: %s make sure to have it in commands first\n", name)
+				return
+			}
+		}
+
+		newMacro := Macro{
+			Name:        name,
+			Description: "Custom macro",
+			Commands:    commandNames,
+		}
+
+		macros[name] = newMacro
+		setMacroMap(macros)
+		fmt.Printf("Macro '%s' added with commands: %v\n", name, commandNames)
+	},
+}
+
+var listMacroCmd = &cobra.Command{
+	Use:   "lm",
+	Short: "List a macro list",
+	Long:  `Execute all commands associated with a given macro.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		macroName := args[0]
+
+		macros := getMacrosMap()
+		if _, exists := macros[macroName]; !exists {
+			fmt.Printf("Macro not found: %s\n", macroName)
+			return
+		}
+
+		macro := macros[macroName]
+		fmt.Printf("Macro: %s\n", macro.Name)
+		fmt.Printf("Description: %s\n", macro.Description)
+		fmt.Printf("Commands: %v\n", macro.Commands)
+	},
+}
+
+var executeMacroCmd = &cobra.Command{
+	Use:   "em [macro name]",
+	Short: "Execute a macro",
+	Long:  `Execute all commands associated with a given macro.`,
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		macroName := args[0]
+		executeMacro(macroName)
+	},
+}
+
+func executeMacro(macroName string) {
+	macros := getMacrosMap()
+	if macro, exists := macros[macroName]; exists {
+		for _, cmdName := range macro.Commands {
+			if command, exists := getCommandsMap()[cmdName]; exists {
+				fmt.Printf("Executing command '%s': %s\n", cmdName, command.Command)
+				executeCommand(command.Command)
+			}
 		}
 	} else {
-		fmt.Printf("Command not found: %s\n", name)
+		fmt.Println("Macro not found:", macroName)
+	}
+}
+
+func executeCommand(command string) {
+	cmd := exec.Command("bash", "-c", command)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(string(output))
+}
+
+func getMacrosMap() map[string]Macro {
+	macros := make(map[string]Macro)
+	rawMacros := viper.GetStringMap(MACROS_KEY)
+
+	for key, raw := range rawMacros {
+		macroMap := raw.(map[string]interface{})
+		commands := []string{}
+		for _, cmd := range macroMap["commands"].([]interface{}) {
+			commands = append(commands, cmd.(string))
+		}
+		macros[key] = Macro{
+			Name:        macroMap["name"].(string),
+			Description: macroMap["description"].(string),
+			Commands:    commands,
+		}
+	}
+
+	return macros
+}
+
+func setMacroMap(macros map[string]Macro) {
+	viper.Set(MACROS_KEY, macros)
+	if err := viper.WriteConfig(); err != nil {
+		fmt.Printf("Error writing macros to config: %s\n", err)
 	}
 }
 
@@ -152,18 +283,18 @@ func getCommandsMap() map[string]BashCommand {
 		}
 
 		alias := ""
-		if commandMap["alias"] == nil {
-			commandMap["alias"] = ""
+		if commandMap["alias"] != nil {
+			alias = commandMap["alias"].(string)
 		}
 
 		defaultMachine := ""
-		if commandMap["defaultMachine"] == nil {
-			commandMap["defaultMachine"] = ""
+		if commandMap["defaultMachine"] != nil {
+			defaultMachine = commandMap["defaultMachine"].(string)
 		}
 
 		pinned := false
-		if commandMap["pinned"] == nil {
-			commandMap["pinned"] = false
+		if commandMap["pinned"] != nil {
+			pinned = commandMap["pinned"].(bool)
 		}
 
 		command := BashCommand{
@@ -188,7 +319,11 @@ func setCommandsMap(commands map[string]BashCommand) {
 
 func init() {
 	UserCommandCmd.AddCommand(pinCommandCmd)
+	UserCommandCmd.AddCommand(unpinCommandCmd)
 	UserCommandCmd.AddCommand(addCommandCmd)
 	UserCommandCmd.AddCommand(listCommandCmd)
 	UserCommandCmd.AddCommand(removeCommandCmd)
+	UserCommandCmd.AddCommand(addMacroCmd)
+	UserCommandCmd.AddCommand(executeMacroCmd)
+	UserCommandCmd.AddCommand(listMacroCmd)
 }

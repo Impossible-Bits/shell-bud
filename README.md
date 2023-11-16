@@ -4,10 +4,11 @@
 **Shell Bud** is a command-line utility tool designed to enhance productivity and streamline management of self-hosted services and machines. It provides an easy-to-use interface for managing remote machines, executing commands, and automating routine tasks.
 
 ## Features
-
+- [x] **Simple Config** Shell Bud's configuration is stored in a single YAML file, making it easy to manage and backup.
 - [x] **Machine Management**: Easily add, list, and remove machines, keeping track of their IP addresses and online status.
 - [x] **Command Management**: Manage and organize frequently used commands with options to add, list, and remove them.
-- [ ] **Macro System**: Pin commands for quick execution, including the option to set aliases for ease of use.
+- [x] **Pin Commands**: Pin commands to a machine, allowing for quick and easy execution.
+- [x] **Macro System**: Save commands to execute in an order.
 - [ ] **Remote Execution**: Execute commands on remote machines, either specified per command or set as a default for each macro.
 - [ ] **Enhanced Visuals**: Color-coded output and emoji/Nerd Font icons for an improved user experience.
 - [ ] **Background Command Execution**: Run commands in the background, allowing for multitasking and checking results later.
